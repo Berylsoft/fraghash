@@ -5,7 +5,6 @@ fn usize_u64(n: usize) -> u64 {
 
 use std::{fs::OpenOptions, io::{Read, Write}};
 use cshake::{CShakeCustom, cshake_customs, Absorb, Squeeze, Reset};
-use zeroize::Zeroize;
 
 const HEADER: &str = include_str!("header");
 
@@ -52,8 +51,6 @@ fn main() {
             sum_ctx.squeeze(&mut hash_buf);
             hex::encode_to_slice(&hash_buf, &mut hash_str_buf[..128]).unwrap();
             dst_f.write_all(&hash_str_buf).unwrap();
-            hash_buf.zeroize();
-            hash_str_buf.zeroize();
             break;
         }
     }

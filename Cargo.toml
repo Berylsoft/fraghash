@@ -11,6 +11,5 @@ name = "fraghash"
 path = "main.rs"
 
 [dependencies]
-cshake = { git = "https://github.com/Berylsoft/keccak-state", features = ["alloc", "zeroize-on-drop"] }
+cshake = { git = "https://github.com/Berylsoft/keccak-state" }
 hex = "0.4"
-zeroize = "1"
