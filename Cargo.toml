@@ -1,0 +1,16 @@
+[package]
+name = "fraghash"
+version = "0.1.0"
+edition = "2021"
+authors = ["stackinspector"]
+license = "MPL-2.0"
+repository = "https://github.com/Berylsoft/fraghash"
+
+[[bin]]
+name = "fraghash"
+path = "main.rs"
+
+[dependencies]
+cshake = { git = "https://github.com/Berylsoft/keccak-state", features = ["alloc", "zeroize-on-drop"] }
+hex = "0.4"
+zeroize = "1"
