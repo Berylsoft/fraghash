@@ -56,7 +56,7 @@ cshake_customs! {
 fn main() {
     let mut args = std::env::args_os();
     let _ = args.next();
-    let src_root: PathBuf = args.next().expect("src not provided").into();
+    let src_root: PathBuf = args.next().map(Into::into).unwrap_or_else(|| PathBuf::from("."));
     let src_list = iter_path(&src_root, None).unwrap();
     let dst = args.next();
     let mut dst_h: Box<dyn Write> = if let Some(dst_path) = dst {
@@ -64,6 +64,7 @@ fn main() {
     } else {
         Box::new(io::stdout().lock())
     };
+    let mut info_h = io::stderr().lock();
     let mut buf = vec![0u8; 16777216];
     let mut len_buf = itoa::Buffer::new();
     let mut hash_buf = [0; 64];
@@ -95,6 +96,24 @@ fn main() {
         };
     }
 
+    macro_rules! iws {
+        ($buf:expr) => {
+            info_h.write_all($buf.as_bytes()).unwrap();
+        };
+    }
+
+    macro_rules! iwl {
+        ($buf:expr) => {
+            info_h.write_all(len_buf.format($buf).as_bytes()).unwrap();
+        };
+    }
+
+    macro_rules! iwn {
+        () => {
+            info_h.write_all(b"\n").unwrap();
+        };
+    }
+
     ws!(HEADER);
     for (src_path, is_dir) in src_list {
         if !is_dir {
@@ -105,6 +124,8 @@ fn main() {
             ws!(")=");
             ws!(name);
             wn!();
+            iws!(name);
+            iwn!();
             let mut src_f = OpenOptions::new().read(true).open(&src_path).unwrap();
             let len = src_f.metadata().unwrap().len();
             ws!("size=");
@@ -128,9 +149,12 @@ fn main() {
                     ctx.reset();
                     progress += usize_u64(read_len);
                     block_count += 1;
+                    iwl!(progress);
+                    iws!(" ");
                 } else {
                     // must be EOF beacuse buf_len != 0
                     assert_eq!(progress, len);
+                    iwn!();
                     sum_ctx.squeeze(&mut hash_buf);
                     hex::encode_to_slice(&hash_buf, &mut hash_str_buf).unwrap();
                     w!(hash_str_buf);
