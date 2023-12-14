@@ -57,9 +57,13 @@ fn main() {
     let mut args = std::env::args_os();
     let _ = args.next();
     let src_root: PathBuf = args.next().expect("src not provided").into();
-    let dst = args.next().expect("dst not provided");
     let src_list = iter_path(&src_root, None).unwrap();
-    let mut dst_f = OpenOptions::new().create_new(true).write(true).open(&dst).unwrap();
+    let dst = args.next();
+    let mut dst_h: Box<dyn Write> = if let Some(dst_path) = dst {
+        Box::new(OpenOptions::new().create_new(true).write(true).open(&dst_path).unwrap())
+    } else {
+        Box::new(io::stdout().lock())
+    };
     let mut buf = vec![0u8; 16777216];
     let mut len_buf = itoa::Buffer::new();
     let mut hash_buf = [0; 64];
@@ -69,25 +73,25 @@ fn main() {
 
     macro_rules! w {
         ($buf:expr) => {
-            dst_f.write_all(&$buf).unwrap();
+            dst_h.write_all(&$buf).unwrap();
         };
     }
 
     macro_rules! ws {
         ($buf:expr) => {
-            dst_f.write_all($buf.as_bytes()).unwrap();
+            dst_h.write_all($buf.as_bytes()).unwrap();
         };
     }
 
     macro_rules! wl {
         ($buf:expr) => {
-            dst_f.write_all(len_buf.format($buf).as_bytes()).unwrap();
+            dst_h.write_all(len_buf.format($buf).as_bytes()).unwrap();
         };
     }
 
     macro_rules! wn {
         () => {
-            dst_f.write_all(b"\n").unwrap();
+            dst_h.write_all(b"\n").unwrap();
         };
     }
 
