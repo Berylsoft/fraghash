@@ -13,3 +13,4 @@ path = "main.rs"
 [dependencies]
 cshake = { git = "https://github.com/Berylsoft/keccak-state" }
 hex = "0.4"
+itoa = "1"
