@@ -5,6 +5,36 @@ fn usize_u64(n: usize) -> u64 {
 
 use std::{fs::{self, OpenOptions}, io::{self, Read, Write}, path::{Path, PathBuf}};
 
+fn normalize(path: &Path) -> PathBuf {
+    use std::path::Component;
+    let mut components = path.components().peekable();
+    let mut ret = if let Some(c @ Component::Prefix(..)) = components.peek() {
+        let buf = PathBuf::from(c.as_os_str());
+        components.next();
+        buf
+    } else {
+        PathBuf::new()
+    };
+
+    for component in components {
+        match component {
+            Component::Prefix(..) => unreachable!(),
+            Component::RootDir => {
+                ret.push(component.as_os_str());
+            }
+            Component::CurDir => {}
+            Component::ParentDir => {
+                ret.pop();
+            }
+            Component::Normal(c) => {
+                ret.push(c);
+            }
+        }
+    }
+
+    ret
+}
+
 pub fn iter_path_core(
     current_path: &Path,
     depth: Option<u64>,
@@ -118,7 +148,10 @@ fn main() {
     for (src_path, is_dir) in src_list {
         if !is_dir {
             wn!();
+            let src_path = normalize(&src_path);
             let name = src_path.to_str().unwrap();
+            #[cfg(windows)]
+            let name = name.replace("\\", "/");
             ws!("name(");
             wl!(name.len());
             ws!(")=");
