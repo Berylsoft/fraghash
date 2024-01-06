@@ -225,6 +225,13 @@ fn main() {
                     w!(hash_str_buf);
                     ws!(" SUM");
                     wn!();
+                    // The original designed semantics of "sum hash" was `hash(current_file_content)`,
+                    // but since the sum ctx was not cleared after every file finished when it was
+                    // implemented, and such an implementation had already been put into production
+                    // before the bug was found, the semantics had to be changed to
+                    // `hash(all_previous_files_content | current_file_content)`. Not only does it
+                    // make sense on its own, though, but it makes sense of fragment-separated
+                    // hash with only one fragment.
                     break;
                 }
             }
