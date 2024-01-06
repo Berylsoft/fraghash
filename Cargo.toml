@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["stackinspector"]
 license = "MPL-2.0"
 repository = "https://github.com/Berylsoft/fraghash"
+build = "build.rs"
 
 [[bin]]
 name = "fraghash"

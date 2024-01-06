@@ -1,7 +1,0 @@
-Berylsoft File Fragment Hash Standard Version 2.0
-
-alg=cshake256_512
-custom=BerylsoftFragHashV1
-sum_alg=cshake256_512
-sum_custom=BerylsoftFragHashSumV1
-frag=

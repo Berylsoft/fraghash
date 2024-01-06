@@ -76,11 +76,17 @@ pub fn iter_path(path: &Path, depth: Option<u64>) -> io::Result<Vec<(PathBuf, bo
 
 use cshake::{CShakeCustom, cshake_customs, Absorb, Squeeze, Reset};
 
-const HEADER: &str = include_str!("header");
-
 cshake_customs! {
-    DEFAULT_CUSTOM -> "BerylsoftFragHashV1"
-    DEFAULT_SUM_CUSTOM -> "BerylsoftFragHashSumV1"
+    BerylsoftFragHashV1 -> "BerylsoftFragHashV1"
+    BerylsoftFragHashSumV1 -> "BerylsoftFragHashSumV1"
+}
+
+fn alg_name(outsize: usize) -> &'static str {
+    match outsize {
+        32 => "cshake256_256",
+        64 => "cshake256_512",
+        _ => unreachable!(),
+    }
 }
 
 fn main() {
@@ -89,6 +95,9 @@ fn main() {
     let frag = args.next().unwrap();
     let frag: usize = frag.to_str().unwrap().parse().unwrap();
     let frag = frag * 1048576;
+    let outsize = args.next().unwrap();
+    let outsize: usize = outsize.to_str().unwrap().parse().unwrap();
+    let alg_name_str = alg_name(outsize);
     let src_root: PathBuf = args.next().map(Into::into).unwrap_or_else(|| PathBuf::from("."));
     let src_list = iter_path(&src_root, None).unwrap();
     let dst = args.next();
@@ -100,10 +109,10 @@ fn main() {
     let mut info_h = io::stderr().lock();
     let mut buf = vec![0u8; frag];
     let mut len_buf = itoa::Buffer::new();
-    let mut hash_buf = [0; 64];
-    let mut hash_str_buf = [0; 128];
-    let mut ctx = DEFAULT_CUSTOM.create();
-    let mut sum_ctx = DEFAULT_SUM_CUSTOM.create();
+    let mut hash_buf = vec![0; outsize];
+    let mut hash_str_buf = vec![0; outsize * 2];
+    let mut ctx = BerylsoftFragHashV1.create();
+    let mut sum_ctx = BerylsoftFragHashSumV1.create();
 
     macro_rules! w {
         ($buf:expr) => {
@@ -147,7 +156,25 @@ fn main() {
         };
     }
 
-    ws!(HEADER);
+    ws!("Berylsoft File Fragment Hash Standard Version 2.1");
+    wn!();
+    wn!();
+    ws!("writer=fraghash@");
+    ws!(env!("GIT_HASH"));
+    wn!();
+    ws!("alg=");
+    ws!(alg_name_str);
+    wn!();
+    ws!("custom=");
+    w!(BerylsoftFragHashV1.custom_string());
+    wn!();
+    ws!("sum_alg=");
+    ws!(alg_name_str);
+    wn!();
+    ws!("sum_custom=");
+    w!(BerylsoftFragHashSumV1.custom_string());
+    wn!();
+    ws!("frag=");
     wl!(frag);
     wn!();
     for (src_path, is_dir) in src_list {
