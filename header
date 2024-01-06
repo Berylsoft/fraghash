@@ -4,4 +4,4 @@ alg=cshake256_512
 custom=BerylsoftFragHashV1
 sum_alg=cshake256_512
 sum_custom=BerylsoftFragHashSumV1
-frag=16777216
+frag=

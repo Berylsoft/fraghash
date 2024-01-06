@@ -86,6 +86,9 @@ cshake_customs! {
 fn main() {
     let mut args = std::env::args_os();
     let _ = args.next();
+    let frag = args.next().unwrap();
+    let frag: usize = frag.to_str().unwrap().parse().unwrap();
+    let frag = frag * 1048576;
     let src_root: PathBuf = args.next().map(Into::into).unwrap_or_else(|| PathBuf::from("."));
     let src_list = iter_path(&src_root, None).unwrap();
     let dst = args.next();
@@ -95,7 +98,7 @@ fn main() {
         Box::new(io::stdout().lock())
     };
     let mut info_h = io::stderr().lock();
-    let mut buf = vec![0u8; 16777216];
+    let mut buf = vec![0u8; frag];
     let mut len_buf = itoa::Buffer::new();
     let mut hash_buf = [0; 64];
     let mut hash_str_buf = [0; 128];
@@ -145,6 +148,8 @@ fn main() {
     }
 
     ws!(HEADER);
+    wl!(frag);
+    wn!();
     for (src_path, is_dir) in src_list {
         if !is_dir {
             wn!();
