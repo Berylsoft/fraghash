@@ -30,7 +30,12 @@ fn main() {
     let outsize: usize = outsize.to_str().unwrap().parse().unwrap();
     let alg_name_str = alg_name(outsize);
     let src_root: PathBuf = args.next().map(Into::into).unwrap_or_else(|| PathBuf::from("."));
-    let src_list = iter_path(&src_root, None).unwrap();
+    // In fact, normalize-then-sort is more reasonable, and the behavior of the `iter_path`'s `normalized`
+    // is also normalize-then-sort. But since the previous behavior was sort-then-normalize, `iter_path`'s
+    // `normalized` is not used, and the same behavior as before is maintained. Sorting before normalizing
+    // could lead to inconsistencies in the order under different conditions! The impact of this issue
+    // needs further investigation.
+    let src_list = iter_path(&src_root, None, true, false).unwrap();
     let dst = args.next();
     let mut dst_h: Box<dyn Write> = if let Some(dst_path) = dst {
         Box::new(OpenOptions::new().create_new(true).write(true).open(&dst_path).unwrap())
@@ -111,6 +116,7 @@ fn main() {
     for (src_path, is_dir) in src_list {
         if !is_dir {
             wn!();
+            // see `iter_path` call above
             let src_path = normalize(&src_path);
             let name = src_path.to_str().unwrap();
             #[cfg(windows)]
