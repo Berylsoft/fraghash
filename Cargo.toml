@@ -13,5 +13,6 @@ path = "main.rs"
 
 [dependencies]
 cshake = { git = "https://github.com/Berylsoft/keccak-state" }
+foundations = { git = "https://github.com/Berylsoft/foundations", features = ["fs"] }
 hex = "0.4"
 itoa = "1"
