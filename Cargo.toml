@@ -11,6 +11,10 @@ build = "build.rs"
 name = "fraghash"
 path = "main.rs"
 
+[[bin]]
+name = "filelist"
+path = "filelist.rs"
+
 [dependencies]
 cshake = { git = "https://github.com/Berylsoft/keccak-state" }
 foundations = { git = "https://github.com/Berylsoft/foundations", features = ["fs"] }
