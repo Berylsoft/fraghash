@@ -12,6 +12,7 @@ fn main() {
     // needs further investigation.
     let src_list = iter_path(&src_root, None, true, false).unwrap();
     let dst = args.next();
+    let ffmpeg_concat = args.next().is_some();
     let mut dst_h: Box<dyn Write> = if let Some(dst_path) = dst {
         Box::new(OpenOptions::new().create_new(true).write(true).open(&dst_path).unwrap())
     } else {
@@ -30,6 +31,7 @@ fn main() {
         };
     }
 
+    if !ffmpeg_concat {
     ws!("NOTA Berylsoft File Fragment Hash Standard Version 2.1");
     wn!();
     wn!();
@@ -37,6 +39,7 @@ fn main() {
     ws!(env!("GIT_HASH"));
     wn!();
     wn!();
+    }
     for (src_path, is_dir) in src_list {
         if !is_dir {
             // see `iter_path` call above
@@ -45,7 +48,14 @@ fn main() {
             #[cfg(windows)]
             let name = name.replace("\\", "/");
             assert!(!name.contains("\n"));
+            if ffmpeg_concat {
+            assert!(!name.contains("'"));
+            ws!("file '");
+            }
             ws!(name);
+            if ffmpeg_concat {
+            ws!("'");
+            }
             wn!();
         }
     }
