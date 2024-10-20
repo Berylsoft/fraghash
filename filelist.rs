@@ -1,3 +1,5 @@
+#![deny(unused_results)]
+
 use std::{fs::OpenOptions, io::{self, Write}, path::PathBuf};
 use foundations::fs::*;
 

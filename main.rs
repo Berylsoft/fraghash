@@ -1,3 +1,5 @@
+#![deny(unused_results)]
+
 #[inline]
 fn usize_u64(n: usize) -> u64 {
     n.try_into().expect("FATAL: usize length to u64 error")
