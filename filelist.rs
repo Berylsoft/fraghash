@@ -34,9 +34,10 @@ fn main() {
     }
 
     if !ffmpeg_concat {
-    ws!("NOTA Berylsoft File Fragment Hash Standard Version 2.1");
+    ws!("Berylsoft File Fragment Hash Standard Version 2.2");
     wn!();
     wn!();
+    ws!("type=filelist");
     ws!("writer=filelist@");
     ws!(env!("GIT_HASH"));
     wn!();
